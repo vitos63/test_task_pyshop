@@ -125,5 +125,5 @@ Endpoint: `/api/me/`
 Method: `PUT
 Header: Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxMjMsInVzZXJuYW1lIjoiZXhhbXBsZVVzZXIiLCJleHAiOjE3MTIxNDYxNDd9.zKobBlRuOiJSxCmi-iYap1bejfnvK6M3qtnkT0ssDKA
 Body: {"username": "John Smith"}
-Response: `{"id": 1, "username": "John Smith", "email": "user@example.com"}`
+Response: `{"id": 1, "username": "John Smith", "email": "user@example.com", "first_name": "", "last_name": ""}`
 ```
