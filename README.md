@@ -112,7 +112,7 @@ Response: `{"success": "User logged out."}`
 Endpoint: `/api/me/`
 Method: `GET
 Header: Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxMjMsInVzZXJuYW1lIjoiZXhhbXBsZVVzZXIiLCJleHAiOjE3MTIxNDYxNDd9.zKobBlRuOiJSxCmi-iYap1bejfnvK6M3qtnkT0ssDKA
-Response: `{"id": 1, "username": "testuser", "email": "user@example.com"}`
+Response: `{"id": 1, "username": "testuser", "email": "user@example.com", "first_name": "", "last_name": ""}`
 ```
 
 ### 6️⃣ Изменение личной информации пользователя
