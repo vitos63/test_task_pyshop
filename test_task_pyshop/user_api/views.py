@@ -17,8 +17,10 @@ class RegisterAPIView(APIView):
     
     def post(self, request):
         serializer = RegisterSerializer(data = request.data)
+
         if serializer.is_valid():
             user = serializer.save()
+
             return Response(
                 {
                     'id':user.id,
@@ -27,6 +29,7 @@ class RegisterAPIView(APIView):
                 },
             status=status.HTTP_201_CREATED
             )
+        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -34,27 +37,23 @@ class LoginAPIView(APIView):
     authentication_classes = []
 
     def post(self, request):
-        try:
-
-            user_email = request.data.get('email')
-            password = request.data.get('password')
-            username = User.objects.get(email=user_email).username
-
-            user = authenticate(username=username, password=password)
-
-            if user:
-                access_token = generate_access_token(user)
-                refresh_token = generate_refresh_token(user)
-
-                return Response(
-                    {
-                    'access_token':access_token,
-                    'refresh_token':refresh_token
-                    }
-                )
+        user_email = request.data.get('email')
+        password = request.data.get('password')
+        user = User.objects.filter(email=user_email).first()
             
-        except User.DoesNotExist:
-            return Response({"error": "Wrong Email"}, status=status.HTTP_400_BAD_REQUEST)
+        if user:
+            user = authenticate(username=user.username, password=password)
+
+        if user:
+            access_token = generate_access_token(user)
+            refresh_token = generate_refresh_token(user)
+
+            return Response(
+                {
+                'access_token':access_token,
+                'refresh_token':refresh_token
+                }
+            )
         
         return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -72,12 +71,17 @@ class LogoutApiView(APIView):
 
     def post(self, request):
         refresh_token = request.data.get('refresh_token')
-        RefreshToken.objects.filter(token = refresh_token).delete()
+        token = RefreshToken.objects.filter(token = refresh_token).first()
+        
+        if not token:
+            return Response({'error': 'Invalid refresh token'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        token.delete()
+
         return Response({'success': 'User logged out.'})
 
 
 class ProfileAPIView(RetrieveUpdateAPIView):
-
     permission_classes = [IsAuthenticated]
     serializer_class = ProfileSerializer
 

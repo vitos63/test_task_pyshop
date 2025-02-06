@@ -1,9 +1,9 @@
 from datetime import timedelta
-from django.utils.timezone import now
 from time import sleep
 import jwt
 from uuid import uuid4
 from constance import config
+from django.utils.timezone import now
 from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth import get_user_model
@@ -25,6 +25,7 @@ class GenerateAccessTokenTest(TestCase):
 
     def test_generate_access_token_returns_valid_token(self):
         token = generate_access_token(self.user)
+
         self.assertIsInstance(token, str)
 
 
@@ -57,8 +58,10 @@ class GenerateRefreshTokenTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='testuser', email='test@example.com', password='password123')
 
+
     def test_generate_refresh_token_creates_valid_token(self):
         token = generate_refresh_token(self.user)
+
         self.assertIsInstance(token, str)
         self.assertTrue(RefreshToken.objects.filter(user=self.user).exists())
 
@@ -98,14 +101,11 @@ class RefreshTokensTest(TestCase):
 
     def test_refresh_token_success(self):
         old_token = self.refresh_token
-
         response = refresh_tokens(old_token)
 
         self.assertIn('access_token', response.data)
         self.assertIn('refresh_token', response.data)
-
         self.assertNotEqual(old_token, response.data['refresh_token'])
-
         self.assertFalse(RefreshToken.objects.filter(token=old_token).exists())
 
 
@@ -123,7 +123,6 @@ class RefreshTokensTest(TestCase):
             token=uuid4(),
             expires_at=now() - timedelta(days=1)
         )
-
         response = refresh_tokens(expired_token_obj.token)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -136,9 +135,12 @@ class VerifyTokenTest(TestCase):
         self.user = User.objects.create_user(username='testuser', email='test@example.com', password='password123')
         self.valid_token = generate_access_token(self.user)
 
+
     def test_verify_valid_token(self):
         user = verify_token(self.valid_token)
+
         self.assertEqual(user, self.user)
+
 
     def test_verify_expired_token(self):
         expired_payload = {
@@ -147,15 +149,17 @@ class VerifyTokenTest(TestCase):
             'iat': now() - timedelta(hours=1),
         }
         expired_token = jwt.encode(expired_payload, settings.SECRET_KEY, algorithm='HS256')
-
         user = verify_token(expired_token)
+
         self.assertIsNone(user)
+
 
     def test_verify_invalid_token(self):
         invalid_token = self.valid_token[:-5] + 'abcde'
-
         user = verify_token(invalid_token)
+
         self.assertIsNone(user)
+
 
     def test_verify_token_with_nonexistent_user(self):
         non_existent_payload = {
@@ -164,6 +168,6 @@ class VerifyTokenTest(TestCase):
             'iat': now(),
         }
         non_existent_token = jwt.encode(non_existent_payload, settings.SECRET_KEY, algorithm='HS256')
-
         user = verify_token(non_existent_token)
+        
         self.assertIsNone(user)

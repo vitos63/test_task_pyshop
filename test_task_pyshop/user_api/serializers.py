@@ -15,10 +15,11 @@ class RegisterSerializer(serializers.ModelSerializer):
         model = User
         fields = ['username', 'email', 'password1', 'password2']
     
+
     def validate(self, attrs):
-        
         if attrs['password1']!=attrs['password2']:
             raise serializers.ValidationError({'password2':"Passwords don't match"})
+        
         return attrs
     
 
@@ -28,7 +29,9 @@ class RegisterSerializer(serializers.ModelSerializer):
             email=validated_data['email'],
             password=validated_data['password1'],
         )
+
         return user
+
 
 class ProfileSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
@@ -40,6 +43,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta():
         model = User
         fields = ['id', 'username', 'email', 'first_name', 'last_name']
+    
     
     def update(self, instance, validated_data):
         instance.username = validated_data.get('username', instance.username)

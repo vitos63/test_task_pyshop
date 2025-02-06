@@ -24,6 +24,9 @@
     pip install -r requirements.txt
     ```
 
+4. Создайте файл .env и внесите туда необходимые данные:
+
+
 ## Запуск
 
 Запустите сервер redis:
@@ -63,7 +66,7 @@ python manage.py runserver
 ```
 Endpoint: `/api/register/`
 Method: `POST
-Body: `{"username": "testuser", "email": "user@example.com", "password": "password"}`
+Body: `{"username": "testuser", "email": "user@example.com", "password1": "password", "password2": "password"}`
 Response: `{"id": 1, "username": "testuser", "email": "user@example.com"}`
 ```
 

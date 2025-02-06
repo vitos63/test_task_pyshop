@@ -5,20 +5,19 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from user_api.services.generete_tokens import generate_access_token, generate_refresh_token
 from user_api.models import RefreshToken
-from time import sleep
 
 User = get_user_model()
 
 
 class APITestCase(TestCase):
     def setUp(self):
-        
         self.client = APIClient()
         self.user = User.objects.create_user(username='testuser', email='testuser@example.com', password='password123')
         user = authenticate(username = self.user.username, password = 'password123')
         self.access_token = generate_access_token(user)
         self.refresh_token = generate_refresh_token(user)
     
+
     def test_register_api_view(self):
         url = reverse('register')
         data = {
@@ -46,6 +45,7 @@ class APITestCase(TestCase):
             'password2':'password123'
         }
         response = self.client.post(url, data)
+
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('username', response.data)
 
@@ -59,6 +59,7 @@ class APITestCase(TestCase):
             'password2':'password123'
         }
         response = self.client.post(url, data)
+
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('email', response.data)
     
@@ -71,8 +72,8 @@ class APITestCase(TestCase):
             'password1':'password123',
             'password2':'password'
         }
-
         response = self.client.post(url, data)
+
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('password2', response.data)
     
@@ -83,8 +84,8 @@ class APITestCase(TestCase):
             'email':'testuser@example.com',
             'password':'password123'
         }
-
         response = self.client.post(url, data)
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('access_token', response.data)
         self.assertIn('refresh_token', response.data)
@@ -97,10 +98,10 @@ class APITestCase(TestCase):
             'email':'test@example.com',
             'password':'password123'
         }
-
         response = self.client.post(url, data)
+
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual({"error": "Wrong Email"}, response.data)
+        self.assertEqual({"error": "Invalid credentials"}, response.data)
     
 
     def test_login_wrong_password(self):
@@ -109,8 +110,8 @@ class APITestCase(TestCase):
             'email':'testuser@example.com',
             'password':'password'
         }
-
         response = self.client.post(url, data)
+
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual({"error": "Invalid credentials"}, response.data)
     
@@ -120,8 +121,8 @@ class APITestCase(TestCase):
         data = {
             'refresh_token':self.refresh_token
         }
-
         response = self.client.post(url, data)
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('refresh_token', response.data)
         self.assertIn('access_token', response.data)
@@ -133,9 +134,9 @@ class APITestCase(TestCase):
         data = {
             'refresh_token':self.refresh_token
         }
-
-        response_good = self.client.post(url, data)
+        response_success = self.client.post(url, data)
         response_wrong = self.client.post(url, data)
+
         self.assertEqual(response_wrong.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response_wrong.data, {'error':'Token not found'})
     
@@ -145,8 +146,8 @@ class APITestCase(TestCase):
         data ={
             'refresh_token':self.refresh_token
         }
-
         response = self.client.post(url, data)
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data,{'success': 'User logged out.'})
         self.assertTrue(User.objects.filter(username='testuser').exists())
@@ -162,8 +163,8 @@ class APITestCase(TestCase):
             'first_name': '',
             'last_name': '',
         }
-        
         response = self.client.get(url, HTTP_AUTHORIZATION=f'Bearer {self.access_token}')
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, response_data)
     
@@ -173,7 +174,6 @@ class APITestCase(TestCase):
         data = {
             'username':'new_test_user'
             }
-        
         response_data = {
             'id': User.objects.get(username='testuser').id,
             'username': 'new_test_user',
@@ -181,8 +181,8 @@ class APITestCase(TestCase):
             'first_name': '',
             'last_name': '',
         }
-        
         response = self.client.put(url, data, HTTP_AUTHORIZATION=f'Bearer {self.access_token}')
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, response_data)
     
@@ -192,7 +192,6 @@ class APITestCase(TestCase):
         data = {
             'email':'new_testuser@example.com'
             }
-        
         response_data = {
             'id': User.objects.get(username='testuser').id,
             'username': 'testuser',
@@ -200,8 +199,8 @@ class APITestCase(TestCase):
             'first_name': '',
             'last_name': '',
         }
-        
         response = self.client.put(url, data, HTTP_AUTHORIZATION=f'Bearer {self.access_token}')
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, response_data)
 
@@ -211,7 +210,6 @@ class APITestCase(TestCase):
         data = {
             'first_name':'first_name'
             }
-        
         response_data = {
             'id': User.objects.get(username='testuser').id,
             'username': 'testuser',
@@ -219,8 +217,8 @@ class APITestCase(TestCase):
             'first_name': 'first_name',
             'last_name': '',
         }
-        
         response = self.client.put(url, data, HTTP_AUTHORIZATION=f'Bearer {self.access_token}')
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, response_data)
     
@@ -230,7 +228,6 @@ class APITestCase(TestCase):
         data = {
             'last_name':'last_name'
             }
-        
         response_data = {
             'id': User.objects.get(username='testuser').id,
             'username': 'testuser',
@@ -238,8 +235,8 @@ class APITestCase(TestCase):
             'first_name': '',
             'last_name': 'last_name',
         }
-        
         response = self.client.put(url, data, HTTP_AUTHORIZATION=f'Bearer {self.access_token}')
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, response_data)
     
@@ -247,6 +244,7 @@ class APITestCase(TestCase):
     def test_wrong_token_profile(self):
         url = reverse('me')
         response = self.client.get(url, HTTP_AUTHORIZATION='Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJleHAiOjE3Mzg3NzEzMTYsImlhdCI6MTczODc3MTI4Nn0.pEgtgy3Ocr-1LBo915wFzFIg_ZNoqbHAyoyk9HBklEsF')
+        
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
     
 

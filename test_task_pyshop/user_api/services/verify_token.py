@@ -7,7 +7,6 @@ User = get_user_model()
 
 
 def verify_token(token):
-    
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
         return User.objects.get(id=payload['user_id'])
